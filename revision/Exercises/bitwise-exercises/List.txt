@@ -1,0 +1,43 @@
+1)
+    0x0 = 0000
+    0x10 = 0001_0000
+    0xF = 1111
+    0x1F = 0001_1111
+    0xA4 = 1010_0100
+    0xFF = 1111_1111
+2)
+    0xC6 &= 0x35: 0xC6 = 1100_0110, 0x35 = 0011_0101 = 00000100
+    0xC6 |= 0x35 = 11110111
+    0xC6 ^= 0x35 = 11110011
+
+    0x19 &= 0x24 = 0x19 = 0001_1001, 0x24 = 0010_0100, = 00000000
+    0x19 |= 0x24 = 00111101
+    0x19 ^⁼ 0x24 = 00111101
+
+    0xD3 &= 0xC7 = 0xD3 = 1101_0011, 0xC7 = 1100_0111 = 11000011
+    0xD3 |= 0xC7 = 11010111
+    0xD3 ^⁼ 0xC7 = 00010100
+
+    0x17 &= 0xFF = 0x17 = 0001_0111, 0xFF = 1111_1111 = 0001_0111
+    0x17 |= 0xFF = 1111_1111
+    0x17 ^= 0xFF = 1110_1000
+
+3)
+    0xC6 = 1100_0110
+    1's complement is: 0011_1001
+    0x35 = 0011_0101
+    1's complement is: 1100_1010
+    0xD3 & 0xC7 = 1100_0011
+    1's complement is: 0011_1100
+
+4)
+    a) The answer is correct because 0xFF is a hexadecimal 1, therefore 1 & and anything else gives anything, in this case a.
+    b) is it correct, to absorb the value
+    c) is correct, He does the opposite.
+    d)
+    e)
+    f)
+    g)
+    h)
+
+
