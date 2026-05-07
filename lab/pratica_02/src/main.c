@@ -21,12 +21,10 @@ static void setupGPIO1(volatile unsigned int num, volatile bool key){
 
 /* Blink internal leds*/
 static void blink_int(volatile unsigned int num){
-    if(num >= 21 && num <= 24){
-        GPIO1_SETDATAOUT |= (1 << num);
-        for(volatile unsigned int i = 0; i < 100000000; i++);
-        GPIO1_CLEARDATAOUT |= (1 << num);
-        for(volatile unsigned int i = 0; i < 100000000; i++);
-    } 
+    GPIO1_SETDATAOUT |= (1 << num);
+    for(volatile unsigned int i = 0; i < 100000000; i++);
+    GPIO1_CLEARDATAOUT |= (1 << num);
+    for(volatile unsigned int i = 0; i < 100000000; i++); 
 }
 
 int main(){
