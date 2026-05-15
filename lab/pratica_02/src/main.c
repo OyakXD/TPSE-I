@@ -1,52 +1,65 @@
-#include "bbb_regs.h"
+#include "soc_AM335x.h"
 #include "hw_types.h"
 #include <stdbool.h>
 
-/* Setup mode, output 0 , input 1, reset is 1*/
-#define setupGPIO1(num, key) \
-        do { \
-            (GPIO1_OE) &= ~((key) << (num)); \
-        } while(0)
-
-/* o reset do pinmux é o 7, então para este caso declarar o pinmux dele não seria necessário, mas é uma boa prática. */
-static void configPINMUX(){
-    CONF_GPMC_A5 |= CONF_GPMC_A5_MODE;
-}
-
-/* Init clock for gpio1*/
-static void initClockGPIO1(){
-    CM_PER_GPIO1_CLKCTRL |= CM_PER_GPIO1_CLKCTRL_MODULEMODE_ENABLE;
-}
-
+#define CM_PER_GPIO_1_CLKCTRL   0xAC
+#define CM_PER_GPIO_2_CLKCTRL   0xB0
+#define CONF_GPMC_CSN3          0x888
+#define CONF_GPMC_CLK           0x88C
+#define CONF_GPMC_A5            0x854
+#define MODULEMODEENABLE        0x2
+#define CONF_GPMC_A5_MODE       0x7
+#define CONF_GPMC_CSN3_MODE     0x7
+#define CONF_GPMC_CLK_MODE      0x7
+#define GPIO_OE                 0x134
+#define GPIO_SETDATAOUT         0x194
+#define GPIO_CLEARDATAOUT       0x190
 
 /* Blink internal leds*/
-static void blink_int(volatile unsigned int num){
-    GPIO1_SETDATAOUT |= (1 << num);
+static void blink(volatile unsigned int num){
+    HWREG(SOC_GPIO_1_REGS + GPIO_SETDATAOUT) |= (1 << num);
+    HWREG(SOC_GPIO_2_REGS + GPIO_SETDATAOUT) |= (1 << num);
     for(volatile unsigned int i = 0; i < 100000000; i++);
-    GPIO1_CLEARDATAOUT |= (1 << num);
+    HWREG(SOC_GPIO_1_REGS + GPIO_CLEARDATAOUT) |= (1 << num);
+    HWREG(SOC_GPIO_2_REGS + GPIO_CLEARDATAOUT) |= (1 << num);
     for(volatile unsigned int i = 0; i < 100000000; i++); 
 }
 
+
 int main(){
-    initClockGPIO1();
-    configPINMUX();
-
-    setupGPIO1(21, 1);
-    setupGPIO1(22, 1);
-    setupGPIO1(23, 1);
-    setupGPIO1(24, 1);
     
-    /* Verificação de IDLEST STATUS DO CLOCK DO GPIO1 */
-    while(!((CM_PER_GPIO1_CLKCTRL >> 16) & 0x1) && !((CM_PER_GPIO1_CLKCTRL >> 17) & 0x1)){
+    /* config CLOCKS*/
+    HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL) |= MODULEMODEENABLE;
+    HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_2_CLKCTRL) |= MODULEMODEENABLE;
+    /*-------------------------*/
 
-        blink_int(21);
-        blink_int(22);
-        blink_int(23);
-        blink_int(24);
+    /* set pinmux */
+    HWREG(SOC_CONTROL_REGS + CONF_GPMC_A5) |= CONF_GPMC_A5_MODE;
+    HWREG(SOC_CONTROL_REGS + CONF_GPMC_CLK) |= CONF_GPMC_CLK_MODE;
+    /*------------------------------------------*/
 
-        blink_int(24);
-        blink_int(23);
-        blink_int(22);
-        blink_int(21);
+    /* set direction*/
+    HWREG(SOC_GPIO_1_REGS + GPIO_OE) &= ~(1 << 21);
+    HWREG(SOC_GPIO_1_REGS + GPIO_OE) &= ~(1 << 22);
+    HWREG(SOC_GPIO_1_REGS + GPIO_OE) &= ~(1 << 23);
+    HWREG(SOC_GPIO_1_REGS + GPIO_OE) &= ~(1 << 24);
+    HWREG(SOC_GPIO_2_REGS + GPIO_OE) &= ~(1 << 1);
+    /*----------------------*/
+    
+
+    /* Verificação de IDLEST STATUS DO CLOCK DO GPIO */
+    while((((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL)) & 0x3) != 0x3) && ((((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL)) & 0x3) != 0x3))){
+
+        blink(21);
+        blink(22);
+        blink(23);
+        blink(24);
+
+        blink(1);
+        blink(24);
+        blink(23);
+        blink(22);
+        blink(21);
+    
     }
 }
