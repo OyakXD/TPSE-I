@@ -2,6 +2,7 @@
 #include "hw_types.h"
 #include <stdbool.h>
 
+/* OFFSETS IN  USAGE */
 #define CM_PER_GPIO_1_CLKCTRL   0xAC
 #define CM_PER_GPIO_2_CLKCTRL   0xB0
 #define CONF_GPMC_CSN3          0x888
@@ -14,6 +15,9 @@
 #define GPIO_OE                 0x134
 #define GPIO_SETDATAOUT         0x194
 #define GPIO_CLEARDATAOUT       0x190
+#define WDT_WWPS                0x34
+#define WDT_WSPR                0x48
+/* ------------------------------------*/
 
 /* Blink internal leds*/
 static void blink(volatile unsigned int num){
@@ -27,6 +31,12 @@ static void blink(volatile unsigned int num){
 
 
 int main(){
+
+    /* Disable WDT */
+    HWREG(SOC_WDT_1_REGS + WDT_WSPR) = 0xAAAA;
+    while(HWREG(SOC_WDT_1_REGS + WDT_WWPS) & (1 << 4));
+    HWREG(SOC_WDT_1_REGS + WDT_WSPR) = 0x5555;
+    while(HWREG(SOC_WDT_1_REGS + WDT_WWPS) & (1 << 4));
     
     /* config CLOCKS*/
     HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL) |= MODULEMODEENABLE;
@@ -46,9 +56,9 @@ int main(){
     HWREG(SOC_GPIO_2_REGS + GPIO_OE) &= ~(1 << 1);
     /*----------------------*/
     
-
-    /* Verificação de IDLEST STATUS DO CLOCK DO GPIO */
-    while((((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL)) & 0x3) != 0x3) && ((((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL)) & 0x3) != 0x3))){
+    
+    // VERIFICAÇÃO DO STATUS DOS CLOCKS
+    while(((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL >> 16) & 0x3) != 0x3) && ((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_2_CLKCTRL >> 16) & 0x3) != 0x3)){
 
         blink(21);
         blink(22);
