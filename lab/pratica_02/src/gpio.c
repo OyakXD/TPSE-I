@@ -77,22 +77,4 @@ void setOEDirection(volatile unsigned int gpio_number, volatile unsigned int reg
     }
 }
 
-void verifyStatusClockGPIOx(volatile unsigned int gpio_number)
-{
-    switch (gpio_number)
-    {
-    case 1:
-        while((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_1_CLKCTRL) & (IDLEST << 16)) != 0);
-        break;
-    case 2:
-        while((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_2_CLKCTRL) & (IDLEST << 16)) != 0);
-        break;
-    case 3:
-        while((HWREG(SOC_CM_PER_REGS + CM_PER_GPIO_3_CLKCTRL) & (IDLEST << 16)) != 0);
-        break;
-    default:
-        break;
-    }
-}
-
 // =============================================================================

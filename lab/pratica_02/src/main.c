@@ -44,11 +44,6 @@ int main(){
     setOEDirection(2,1,0);
     /*----------------------*/
     
-    /* Verificação dos status dos clocks */
-    verifyStatusClockGPIOx(1);
-    verifyStatusClockGPIOx(2);
-    /*------------------------------------ */
-    
     while(1){
 
         blink(21);
